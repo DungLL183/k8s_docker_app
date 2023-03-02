@@ -6,16 +6,16 @@ pipeline{
   stages{
     stage("Build dockerfile"){
       steps{
-        sh "docker build . -t anhdo98/my-docker-app:${DOCKER_IMAGE_TAG}"
+        sh "docker build . -t dungll183/my-docker-app:${DOCKER_IMAGE_TAG}"
       }
     }
     
     stage("Push docker image to dockerhub"){
       steps{
-        withCredentials([string(credentialsId: 'docker-pwd', variable: 'dockerHubPwd')]) {
-          sh "docker login -u anhdo98 -p ${dockerHubPwd}"
+        withCredentials([string(credentialsId: 'docker-creds', variable: 'dockerHubPwd')]) {
+          sh "docker login -u dungll183 -p ${dockerHubPwd}"
         }
-        sh 'docker push anhdo98/my-docker-app:${DOCKER_IMAGE_TAG}'
+        sh 'docker push dungll183/my-docker-app:${DOCKER_IMAGE_TAG}'
       }
     }
     
@@ -24,12 +24,12 @@ pipeline{
         sh "chmod +x changeTag.sh"
         sh "./changeTag.sh ${DOCKER_IMAGE_TAG}"
         sshagent(['k8s-env']) {
-          sh "scp -o StrictHostKeyChecking=no services.yml node-app-pod.yml ubuntu@3.35.197.19:/home/ubuntu"
+          sh "scp -o StrictHostKeyChecking=no services.yml node-app-pod.yml ubuntu@3.38.217.156:/home/ubuntu"
           script{
             try{
-              sh "ssh ubuntu@3.35.197.19 kubectl apply -f ."
+              sh "ssh ubuntu@3.38.217.156 kubectl apply -f ."
             }catch(error){
-              sh "ssh ubuntu@3.35.197.19 kubectl create -f ."
+              sh "ssh ubuntu@3.38.217.156 kubectl create -f ."
             }
           }
         }
